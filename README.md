@@ -1,4 +1,6 @@
-# poseidon-rs [![Crates.io](https://img.shields.io/crates/v/poseidon-rs.svg)](https://crates.io/crates/poseidon-rs) [![Test](https://github.com/arnaucube/poseidon-rs/workflows/Test/badge.svg)](https://github.com/arnaucube/poseidon-rs/actions?query=workflow%3ATest)
+# poseidon-ark [![Test](https://github.com/arnaucube/poseidon-ark/workflows/Test/badge.svg)](https://github.com/arnaucube/poseidon-ark/actions?query=workflow%3ATest)
+
+> **Note**: this repo is a fork from https://github.com/arnaucube/poseidon-rs , porting it to arkworks [ff](https://github.com/arkworks-rs/algebra/tree/master/ff).
 
 Poseidon hash implementation in Rust, a zkSNARK friendly hash function.
 

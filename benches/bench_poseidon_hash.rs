@@ -1,10 +1,9 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 
-#[macro_use]
-extern crate ff;
-use ff::*;
+use ark_bn254::Fr;
+use poseidon_rs::Poseidon;
 
-use poseidon_rs::{Fr, Poseidon};
+use ark_std::str::FromStr;
 
 fn criterion_benchmark(c: &mut Criterion) {
     let b1: Fr = Fr::from_str(
