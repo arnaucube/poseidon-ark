@@ -1,3 +1,23 @@
+[workspace]
+members = [
+    "constants/poseidon-1",
+    "constants/poseidon-2",
+    "constants/poseidon-3",
+    "constants/poseidon-4",
+    "constants/poseidon-5",
+    "constants/poseidon-6",
+    "constants/poseidon-7",
+    "constants/poseidon-8",
+    "constants/poseidon-9",
+    "constants/poseidon-10",
+    "constants/poseidon-11",
+    "constants/poseidon-12",
+    "constants/poseidon-13",
+    "constants/poseidon-14",
+    "constants/poseidon-15",
+    "constants/poseidon-16"
+]
+
 [package]
 name = "poseidon-ark"
 version = "0.0.1"
@@ -8,10 +28,48 @@ description = "Poseidon hash implementation"
 repository = "https://github.com/arnaucube/poseidon-ark"
 readme = "README.md"
 
+[features]
+default = ["poseidon-1", "poseidon-2", "poseidon-3", "poseidon-4", "poseidon-5", "poseidon-6", "poseidon-7", "poseidon-8", "poseidon-9", "poseidon-10", "poseidon-11", "poseidon-12", "poseidon-13", "poseidon-14", "poseidon-15", "poseidon-16"]
+poseidon-1 = ["dep:poseidon-1"]
+poseidon-2 = ["dep:poseidon-2"]
+poseidon-3 = ["dep:poseidon-3"]
+poseidon-4 = ["dep:poseidon-4"]
+poseidon-5 = ["dep:poseidon-5"]
+poseidon-6 = ["dep:poseidon-6"]
+poseidon-7 = ["dep:poseidon-7"]
+poseidon-8 = ["dep:poseidon-8"]
+poseidon-9 = ["dep:poseidon-9"]
+poseidon-10 = ["dep:poseidon-10"]
+poseidon-11 = ["dep:poseidon-11"]
+poseidon-12 = ["dep:poseidon-12"]
+poseidon-13 = ["dep:poseidon-13"]
+poseidon-14 = ["dep:poseidon-14"]
+poseidon-15 = ["dep:poseidon-15"]
+poseidon-16 = ["dep:poseidon-16"]
+
 [dependencies]
 ark-ff = "0.4.0"
 ark-bn254 = { version = "0.4.0" }
 ark-std = { version = "0.4.0" }
+lazy_static = "1.4.0"
+
+# Optional dependencies for each size
+poseidon-1 = { path = "constants/poseidon-1", optional = true }
+poseidon-2 = { path = "constants/poseidon-2", optional = true }
+poseidon-3 = { path = "constants/poseidon-3", optional = true }
+poseidon-4 = { path = "constants/poseidon-4", optional = true }
+poseidon-5 = { path = "constants/poseidon-5", optional = true }
+poseidon-6 = { path = "constants/poseidon-6", optional = true }
+poseidon-7 = { path = "constants/poseidon-7", optional = true }
+poseidon-8 = { path = "constants/poseidon-8", optional = true }
+poseidon-9 = { path = "constants/poseidon-9", optional = true }
+poseidon-10 = { path = "constants/poseidon-10", optional = true }
+poseidon-11 = { path = "constants/poseidon-11", optional = true }
+poseidon-12 = { path = "constants/poseidon-12", optional = true }
+poseidon-13 = { path = "constants/poseidon-13", optional = true }
+poseidon-14 = { path = "constants/poseidon-14", optional = true }
+poseidon-15 = { path = "constants/poseidon-15", optional = true }
+poseidon-16 = { path = "constants/poseidon-16", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
@@ -19,3 +77,4 @@ criterion = "0.3"
 [[bench]]
 name = "bench_poseidon_hash"
 harness = false
+

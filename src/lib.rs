@@ -3,10 +3,44 @@ use ark_ff::fields::Field;
 use ark_std::str::FromStr;
 use ark_std::Zero;
 use core::ops::{AddAssign, MulAssign};
+use lazy_static::lazy_static;
+
+#[cfg(feature = "poseidon-1")]
+extern crate poseidon_1;
+#[cfg(feature = "poseidon-2")]
+extern crate poseidon_2;
+#[cfg(feature = "poseidon-3")]
+extern crate poseidon_3;
+#[cfg(feature = "poseidon-4")]
+extern crate poseidon_4;
+#[cfg(feature = "poseidon-5")]
+extern crate poseidon_5;
+#[cfg(feature = "poseidon-6")]
+extern crate poseidon_6;
+#[cfg(feature = "poseidon-7")]
+extern crate poseidon_7;
+#[cfg(feature = "poseidon-8")]
+extern crate poseidon_8;
+#[cfg(feature = "poseidon-9")]
+extern crate poseidon_9;
+#[cfg(feature = "poseidon-10")]
+extern crate poseidon_10;
+#[cfg(feature = "poseidon-11")]
+extern crate poseidon_11;
+#[cfg(feature = "poseidon-12")]
+extern crate poseidon_12;
+#[cfg(feature = "poseidon-13")]
+extern crate poseidon_13;
+#[cfg(feature = "poseidon-14")]
+extern crate poseidon_14;
+#[cfg(feature = "poseidon-15")]
+extern crate poseidon_15;
+#[cfg(feature = "poseidon-16")]
+extern crate poseidon_16;
 
 mod constants;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Constants {
     pub c: Vec<Vec<Fr>>,
     pub m: Vec<Vec<Vec<Fr>>>,
@@ -14,38 +48,40 @@ pub struct Constants {
     pub n_rounds_p: Vec<usize>,
 }
 
-pub fn load_constants() -> Constants {
-    let (c_str, m_str) = constants::constants();
-    let mut c: Vec<Vec<Fr>> = Vec::new();
-    for i in 0..c_str.len() {
-        let mut cci: Vec<Fr> = Vec::new();
-        for j in 0..c_str[i].len() {
-            let b: Fr = Fr::from_str(c_str[i][j]).unwrap();
-            cci.push(b);
-        }
-        c.push(cci);
-    }
-    let mut m: Vec<Vec<Vec<Fr>>> = Vec::new();
-    for i in 0..m_str.len() {
-        let mut mi: Vec<Vec<Fr>> = Vec::new();
-        for j in 0..m_str[i].len() {
-            let mut mij: Vec<Fr> = Vec::new();
-            for k in 0..m_str[i][j].len() {
-                let b: Fr = Fr::from_str(m_str[i][j][k]).unwrap();
-                mij.push(b);
+lazy_static! {
+    static ref POSEIDON_CONSTANTS: Constants = {
+        let (c_str, m_str) = constants::constants();
+        let mut c: Vec<Vec<Fr>> = Vec::new();
+        for i in 0..c_str.len() {
+            let mut cci: Vec<Fr> = Vec::new();
+            for j in 0..c_str[i].len() {
+                let b: Fr = Fr::from_str(c_str[i][j]).unwrap();
+                cci.push(b);
             }
-            mi.push(mij);
+            c.push(cci);
         }
-        m.push(mi);
-    }
-    Constants {
-        c,
-        m,
-        n_rounds_f: 8,
-        n_rounds_p: vec![
-            56, 57, 56, 60, 60, 63, 64, 63, 60, 66, 60, 65, 70, 60, 64, 68,
-        ],
-    }
+        let mut m: Vec<Vec<Vec<Fr>>> = Vec::new();
+        for i in 0..m_str.len() {
+            let mut mi: Vec<Vec<Fr>> = Vec::new();
+            for j in 0..m_str[i].len() {
+                let mut mij: Vec<Fr> = Vec::new();
+                for k in 0..m_str[i][j].len() {
+                    let b: Fr = Fr::from_str(m_str[i][j][k]).unwrap();
+                    mij.push(b);
+                }
+                mi.push(mij);
+            }
+            m.push(mi);
+        }
+        Constants {
+            c,
+            m,
+            n_rounds_f: 8,
+            n_rounds_p: vec![
+                56, 57, 56, 60, 60, 63, 64, 63, 60, 66, 60, 65, 70, 60, 64, 68,
+            ],
+        }
+    };
 }
 
 pub struct Poseidon {
@@ -54,7 +90,7 @@ pub struct Poseidon {
 impl Poseidon {
     pub fn new() -> Poseidon {
         Poseidon {
-            constants: load_constants(),
+            constants: POSEIDON_CONSTANTS.clone(),
         }
     }
     pub fn ark(&self, state: &mut Vec<Fr>, c: &[Fr], it: usize) {
@@ -94,19 +130,26 @@ impl Poseidon {
 
     pub fn hash(&self, inp: Vec<Fr>) -> Result<Fr, String> {
         let t = inp.len() + 1;
-        if inp.is_empty() || inp.len() > self.constants.n_rounds_p.len() {
-            return Err("Wrong inputs length".to_string());
+        if inp.is_empty() {
+            return Err("Empty input".to_string());
         }
+        
+        // Check if we have the constants for this input length
+        let t_idx = t - 2;
+        if t_idx >= self.constants.c.len() {
+            return Err(format!("No constants available for input length {}. Enable the appropriate feature flag.", inp.len()));
+        }
+
         let n_rounds_f = self.constants.n_rounds_f.clone();
-        let n_rounds_p = self.constants.n_rounds_p[t - 2].clone();
+        let n_rounds_p = self.constants.n_rounds_p[t_idx].clone();
 
         let mut state = vec![Fr::zero(); t];
         state[1..].clone_from_slice(&inp);
 
         for i in 0..(n_rounds_f + n_rounds_p) {
-            self.ark(&mut state, &self.constants.c[t - 2], i * t);
+            self.ark(&mut state, &self.constants.c[t_idx], i * t);
             self.sbox(n_rounds_f, n_rounds_p, &mut state, i);
-            state = self.mix(&state, &self.constants.m[t - 2]);
+            state = self.mix(&state, &self.constants.m[t_idx]);
         }
 
         Ok(state[0])
@@ -119,7 +162,7 @@ mod tests {
 
     #[test]
     fn test_load_constants() {
-        let cons = load_constants();
+        let cons = POSEIDON_CONSTANTS.clone();
         assert_eq!(
             cons.c[0][0].to_string(),
             "4417881134626180770308697923359573201005643519861877412381846989312604493735"
